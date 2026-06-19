@@ -253,8 +253,8 @@ function renderNotes(items) {
         card.innerHTML = `
             <div class="note-header">
                 <div class="note-header-left">
-                    <span class="badge badge-${category}">${item.type}</span>
-                    <time class="note-date" datetime="${item.updated || ''}">${item.date}</time>
+                    <span class="badge badge-${category} clickable-badge" onclick="filterByCategory('${category}')" title="Filter by ${item.type}">${item.type}</span>
+                    <time class="note-date" datetime="${item.updated || ''}">${highlightKeyword(item.date, appState.searchQuery)}</time>
                 </div>
                 <div class="note-actions">
                     <button class="btn-icon-copy" onclick="copyCardText(this, '${escapedItem}')" title="Copy update description to clipboard">
@@ -274,7 +274,7 @@ function renderNotes(items) {
             </div>
             
             <div class="note-body">
-                ${item.html}
+                ${highlightKeyword(item.html, appState.searchQuery)}
             </div>
             
             <div class="note-link-wrapper">
@@ -500,4 +500,52 @@ function initializeTheme() {
 function toggleTheme() {
     const isLight = document.body.classList.toggle('light-theme');
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+// Clickable Category filter
+window.filterByCategory = function(category) {
+    const tab = document.querySelector(`.filter-tab[data-type="${category}"]`);
+    if (tab) {
+        tab.click();
+        // Smooth scroll to top of feed
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+};
+
+// Safe HTML keyword highlighting
+function highlightKeyword(html, keyword) {
+    if (!html) return '';
+    if (!keyword || keyword.trim() === '') return html;
+    
+    const query = keyword.trim();
+    // Escape special regex characters
+    const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    
+    // Create temporary parser DOM
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    function walkAndHighlight(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.nodeValue;
+            if (regex.test(text)) {
+                const wrapperSpan = document.createElement('span');
+                // Replace matching keyword with marked elements
+                wrapperSpan.innerHTML = text.replace(regex, '<mark class="keyword-highlight">$1</mark>');
+                node.parentNode.replaceChild(wrapperSpan, node);
+            }
+        } else if (node.nodeType === Node.ELEMENT_NODE && node.childNodes && !['SCRIPT', 'STYLE', 'CODE'].includes(node.tagName.toUpperCase())) {
+            // Process children in reverse order to avoid index disruption during element swapping
+            for (let i = node.childNodes.length - 1; i >= 0; i--) {
+                walkAndHighlight(node.childNodes[i]);
+            }
+        }
+    }
+    
+    for (let i = tempDiv.childNodes.length - 1; i >= 0; i--) {
+        walkAndHighlight(tempDiv.childNodes[i]);
+    }
+    
+    return tempDiv.innerHTML;
 }

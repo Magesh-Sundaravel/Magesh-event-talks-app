@@ -587,6 +587,36 @@ body.light-theme .btn-theme-toggle .icon-sun {
     align-self: flex-start;
 }
 
+.clickable-badge {
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    user-select: none;
+}
+
+.clickable-badge:hover {
+    transform: translateY(-1px) scale(1.02);
+    filter: brightness(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body.light-theme .clickable-badge:hover {
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.keyword-highlight {
+    background-color: rgba(59, 130, 246, 0.25);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 2px;
+    font-weight: 600;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15);
+}
+
+body.light-theme .keyword-highlight {
+    background-color: rgba(59, 130, 246, 0.18);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
 /* Badge colors */
 .badge-feature {
     background-color: var(--color-feature-bg);
