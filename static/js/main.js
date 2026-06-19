@@ -9,6 +9,7 @@ let appState = {
 // DOM Elements
 const btnRefresh = document.getElementById('btn-refresh');
 const btnExportCsv = document.getElementById('btn-export-csv');
+const btnThemeToggle = document.getElementById('btn-theme-toggle');
 const searchInput = document.getElementById('search-input');
 const searchClear = document.getElementById('search-clear');
 const filterTabs = document.getElementById('filter-tabs');
@@ -36,11 +37,13 @@ const progressRingCircle = document.getElementById('progress-ring-indicator');
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
     fetchReleases(false);
     
     // Refresh & Export handlers
     btnRefresh.addEventListener('click', () => fetchReleases(true));
     btnExportCsv.addEventListener('click', exportToCSV);
+    btnThemeToggle.addEventListener('click', toggleTheme);
     btnRetry.addEventListener('click', () => fetchReleases(false));
     
     // Search handlers
@@ -478,4 +481,23 @@ function exportToCSV() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+// Initialize theme from localStorage or system preference
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    const defaultLight = savedTheme === 'light' || (!savedTheme && prefersLight);
+    
+    if (defaultLight) {
+        document.body.classList.add('light-theme');
+    } else {
+        document.body.classList.remove('light-theme');
+    }
+}
+
+// Toggle light/dark mode and save preference
+function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-theme');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
 }

@@ -41,6 +41,44 @@
     --radius-full: 9999px;
     
     --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(255, 255, 255, 0.05);
+    
+    /* Modal Theming variables */
+    --bg-modal: #15202b;
+    --border-modal: rgba(255, 255, 255, 0.08);
+    --bg-tweet-preview: rgba(0, 0, 0, 0.15);
+    --border-tweet-preview: rgba(255, 255, 255, 0.04);
+}
+
+/* Light Theme Variable Overrides */
+body.light-theme {
+    --bg-primary: #f1f5f9;
+    --bg-secondary: #ffffff;
+    --surface-glass: rgba(255, 255, 255, 0.7);
+    --border-glass: rgba(15, 23, 42, 0.08);
+    --border-glass-hover: rgba(15, 23, 42, 0.16);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    
+    --color-feature-bg: rgba(56, 189, 248, 0.2);
+    --color-announcement-bg: rgba(245, 158, 11, 0.2);
+    --color-issue-bg: rgba(244, 63, 94, 0.2);
+    --color-deprecation-bg: rgba(168, 85, 247, 0.2);
+    --color-general-bg: rgba(100, 116, 139, 0.2);
+    
+    --shadow-premium: 0 10px 30px -10px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.02);
+    
+    /* Modal Light Theme */
+    --bg-modal: #ffffff;
+    --border-modal: rgba(15, 23, 42, 0.08);
+    --bg-tweet-preview: rgba(15, 23, 42, 0.04);
+    --border-tweet-preview: rgba(15, 23, 42, 0.08);
+}
+
+/* Light Theme Ambient Glow Adjustments */
+body.light-theme .bg-glow {
+    opacity: 0.05;
 }
 
 /* Reset & Global Styles */
@@ -167,6 +205,56 @@ body {
     font-size: 13px;
     color: var(--text-muted);
     font-weight: 500;
+}
+
+.btn-theme-toggle {
+    background: var(--surface-glass);
+    border: 1px solid var(--border-glass);
+    color: var(--text-primary);
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+    backdrop-filter: blur(10px);
+}
+
+.btn-theme-toggle:hover {
+    border-color: var(--border-glass-hover);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+}
+
+.btn-theme-toggle:active {
+    transform: translateY(1px);
+}
+
+body.light-theme .btn-theme-toggle:hover {
+    background: rgba(15, 23, 42, 0.05);
+}
+
+.btn-theme-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-theme-toggle .icon-moon {
+    display: none;
+}
+
+.btn-theme-toggle .icon-sun {
+    display: block;
+}
+
+body.light-theme .btn-theme-toggle .icon-moon {
+    display: block;
+}
+
+body.light-theme .btn-theme-toggle .icon-sun {
+    display: none;
 }
 
 .btn-refresh, .btn-export {
@@ -738,8 +826,8 @@ footer.app-footer {
 
 /* Modal Card */
 .modal-card {
-    background: #15202b; /* Twitter/X Dark Theme style background */
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-modal);
+    border: 1px solid var(--border-modal);
     border-radius: var(--radius-lg);
     width: 100%;
     max-width: 520px;
@@ -759,7 +847,7 @@ footer.app-footer {
     justify-content: space-between;
     align-items: center;
     padding: 16px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--border-modal);
 }
 
 .modal-header h3 {
@@ -792,8 +880,8 @@ footer.app-footer {
 
 /* Tweet Draft Preview Layout */
 .tweet-card-preview {
-    background: rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: var(--bg-tweet-preview);
+    border: 1px solid var(--border-tweet-preview);
     border-radius: var(--radius-md);
     padding: 16px;
 }
