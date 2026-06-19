@@ -8,6 +8,7 @@ let appState = {
 
 // DOM Elements
 const btnRefresh = document.getElementById('btn-refresh');
+const btnExportCsv = document.getElementById('btn-export-csv');
 const searchInput = document.getElementById('search-input');
 const searchClear = document.getElementById('search-clear');
 const filterTabs = document.getElementById('filter-tabs');
@@ -37,8 +38,9 @@ const progressRingCircle = document.getElementById('progress-ring-indicator');
 document.addEventListener('DOMContentLoaded', () => {
     fetchReleases(false);
     
-    // Refresh handlers
+    // Refresh & Export handlers
     btnRefresh.addEventListener('click', () => fetchReleases(true));
+    btnExportCsv.addEventListener('click', exportToCSV);
     btnRetry.addEventListener('click', () => fetchReleases(false));
     
     // Search handlers
@@ -252,6 +254,13 @@ function renderNotes(items) {
                     <time class="note-date" datetime="${item.updated || ''}">${item.date}</time>
                 </div>
                 <div class="note-actions">
+                    <button class="btn-icon-copy" onclick="copyCardText(this, '${escapedItem}')" title="Copy update description to clipboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        Copy
+                    </button>
                     <button class="btn-icon-tweet" onclick="prepareTweet('${escapedItem}')" title="Share this update on X/Twitter">
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -405,4 +414,68 @@ function postTweet() {
     const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(intentUrl, '_blank', 'width=600,height=400,resizable=yes');
     closeModal();
+}
+
+// Copy release note text to clipboard
+window.copyCardText = function(btn, escapedItemJson) {
+    const item = JSON.parse(decodeURIComponent(escapedItemJson));
+    const textToCopy = `${item.date} - [${item.type}]\n\n${item.text}\n\nSource Link: ${item.link}`;
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Copied!
+        `;
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('copied');
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy text.');
+    });
+};
+
+// Export currently filtered release notes to CSV file
+function exportToCSV() {
+    const items = appState.filteredReleases;
+    if (!items || items.length === 0) {
+        alert("No release notes found in current search/filter view to export.");
+        return;
+    }
+    
+    // Define headers
+    const headers = ["Date", "Type", "Link", "Content"];
+    
+    // Format rows
+    const rows = items.map(item => [
+        item.date,
+        item.type,
+        item.link,
+        item.text ? item.text.replace(/"/g, '""').replace(/\r?\n/g, ' ') : ""
+    ]);
+    
+    // Build CSV string
+    const csvContent = [
+        headers.join(","),
+        ...rows.map(row => row.map(val => `"${val}"`).join(","))
+    ].join("\r\n");
+    
+    // Trigger file download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const timestamp = new Date().toISOString().slice(0, 10);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `bigquery_release_notes_${timestamp}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
